@@ -1,0 +1,5 @@
+{
+    "configuration": "cache=on",
+    "board": "SparkFun:samd:micromod_samd51",
+    "sketch": "main-board/main_test_temp.ino"
+}

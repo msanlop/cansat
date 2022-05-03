@@ -1,5 +1,7 @@
 #include <Wire.h>
 #include "Accelerometer.h"
+#include "Temperature.h"
+#include "Pressure.h"
 #include "Lora.h"
 #include "Memory.h"
 #include<ctime>
@@ -26,7 +28,7 @@ void loop() {
     unsigned long lastMemWrite, lastdownlink = millis();
 
     while(accel.isFlying()){
-        accel.getData(values);
+        accel.getData(values); //specify which vectors to pass
         //poll all sensors
         deltas.push_back(millis());
         if(writeToMemoryNow() || downlinkNow()){
