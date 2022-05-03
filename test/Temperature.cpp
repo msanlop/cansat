@@ -14,7 +14,7 @@ Temperature::Temperature()
     }
 };
 
-void Temperature::getData(vector<double>& buff)
+double Temperature::getData()
 {
-    buff.push_back(sensor.readTempC());
+    return sensor.readTempC();
 };
