@@ -2,47 +2,76 @@
 #include "Accelerometer.h"
 #include <math.h> 
 
-Accelerometer::Accelerometer()
+QwiicKX132 sensor;
+
+void Accelerometer::begin()
 {
     if(!sensor.begin()) 
         Serial.println("Could not communicate with the the KX13X.");
     else 
         Serial.println("Accelerometer ready!");
     
-    if( !kxAccel.initialize(DEFAULT_SETTINGS))
+    if( !sensor.initialize(DEFAULT_SETTINGS))
         Serial.println("Could not initialize the chip.");
     else
         Serial.println("Initialized...");
-    data = {0.0, 0.0, 0.0};
 }
 
-void Accelerometer::getData(vector<double>& data){
-    myData = kxAccel.getAccelData();
-    Serial.println("X : " + myData.xData);
-    data.pushback(myData.xData);
+double Accelerometer::getX(){
+    outputData myData = sensor.getAccelData();
+    Serial.print("X : ");
+    Serial.println(myData.xData);
+    return myData.xData;
+}
 
-    Serial.println("Y : " + myData.yData);
-    data.pushback(myData.yData);
+double Accelerometer::getY(){
+    outputData myData = sensor.getAccelData();
+    Serial.print("Y : ");
+    Serial.println(myData.yData);
+    return myData.yData;
+}
 
-    Serial.println("Z : " + myData.zData);
-    data.pushback(myData.yData);   
+double Accelerometer::getZ(){
+    outputData myData = sensor.getAccelData();
+    Serial.print("Z : ");
+    Serial.println(myData.zData);
+    return myData.zData;
+}
+/**
+void Accelerometer::getData(std::vector<double>& data){
+    outputData myData = sensor.getAccelData();
+    Serial.print("X : ");
+    Serial.println(myData.xData);
+    data.push_back(myData.xData);
+
+    Serial.print("Y : ");
+    Serial.println(myData.yData);
+    data.push_back(myData.yData);
+
+    Serial.print("Z : ");
+    Serial.println(myData.zData);
+    data.push_back(myData.yData);  
 };
-
-double Accelerometer::getAcceleration(outputData& myData){
+**/
+double Accelerometer::getAcceleration(){
+    outputData myData = sensor.getAccelData();
     double x = myData.xData;
     double y = myData.yData;
     double z = myData.zData;
-    double acc = sqrt(x*x + y*y + z*y);
-    Serial.println("Acceleration(m^2?) : " + acc);
+    double acc = sqrt((x*x) + (y*y) + (z*z));
+    Serial.print("Acceleration(m^2?) : ");
+    Serial.println(acc);
     return acc;
 }
 
 bool Accelerometer::isFlying(){
-    myData = kxAccel.getAccelData();
-    if(getAcceleration(myData) < 10)
+    outputData myData = sensor.getAccelData();
+    if(getAcceleration() < 3){
         Serial.println("Too slow, go faster!!");
         return false;
-    else 
+    }
+    else{ 
         Serial.println("Fast!!");
         return true;
+    }
 }

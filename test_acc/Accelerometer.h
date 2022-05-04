@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SparkFun_Qwiic_KX13X.h"
-
 class Accelerometer
 {
     private:
@@ -9,8 +8,10 @@ class Accelerometer
         outputData data;
 
     public:
-        Accelerometer();
-        void getData(vector<double> buff);
+        void begin();
+        double getX();
+        double getY();
+        double getZ();
         bool isFlying();
-        double getAcceleration(outputData& myData);
+        double getAcceleration();
 };
