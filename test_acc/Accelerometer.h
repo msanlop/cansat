@@ -13,4 +13,4 @@ class Accelerometer
         void getData(vector<double> buff);
         bool isFlying();
         double getAcceleration(outputData& myData);
-}
+};
