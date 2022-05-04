@@ -1,12 +1,14 @@
 #include "Temperature.h" // Used to send and recieve specific information from our sensor
 
-Temperature::Temperature(){};
+Temperature::Temperature()
+{
+}
 
 double Temperature::getData()
 {
     while(!sensor.dataReady());
     return sensor.readTempC();
-};
+}
 
 void Temperature::begin()
 {
