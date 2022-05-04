@@ -1,6 +1,6 @@
 {
     "configuration": "cache=on",
     "board": "SparkFun:samd:micromod_samd51",
-    "sketch": "test/test.ino",
+    "sketch": "test_temp/test_temp.ino",
     "port": "/dev/tty.usbmodem144201"
 }

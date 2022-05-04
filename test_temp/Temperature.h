@@ -12,6 +12,7 @@ class Temperature
     public:
         Temperature();
         double getData();
+        void begin();
 };
 
 #endif

@@ -3,12 +3,18 @@
 
 constexpr unsigned int SIZE(20);
 
+
 Temperature temp;
 
 void setup()
 {
-  
+    Wire.begin();
+    Serial.begin(115200);    // Start serial communication at 115200 baud
+    Wire.setClock(400000);
+    
+    temp.begin();
 }
+
 void loop()
 {
     double values[SIZE];
@@ -19,8 +25,11 @@ void loop()
         
         for(size_t i(0) ; i < SIZE ; i++)
         {
-            Serial.println(values[i] );
+            Serial.print(values[i]);
+            Serial.print(", ");
         }
+
+        Serial.println();
 
         delay(50);
         
