@@ -6,10 +6,10 @@
 
 class Temperature
 {
-    private:
-        TMP117 sensor;
+    // private:
 
     public:
+        TMP117 sensor;
         Temperature();
         double getData();
         void begin();

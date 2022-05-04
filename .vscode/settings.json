@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.asm": "niosii",
         "vector": "cpp",
         "iosfwd": "cpp",
         "iterator": "cpp",
@@ -7,6 +8,12 @@
         "deque": "cpp",
         "list": "cpp",
         "string": "cpp",
-        "complex": "cpp"
+        "complex": "cpp",
+        "__bit_reference": "cpp",
+        "__hash_table": "cpp",
+        "array": "cpp",
+        "initializer_list": "cpp",
+        "string_view": "cpp",
+        "unordered_map": "cpp"
     }
 }

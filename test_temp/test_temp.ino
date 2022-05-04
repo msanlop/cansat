@@ -8,11 +8,19 @@ Temperature temp;
 
 void setup()
 {
-    Wire.begin();
     Serial.begin(115200);    // Start serial communication at 115200 baud
+    Serial.println("serial begin done");
+
+    Wire.begin();
+    Serial.println("wire begin done");
     Wire.setClock(400000);
+    Serial.println("wire clock done");
+    pinMode(LED_BUILTIN, OUTPUT);
+    Serial.println("Wire clock set");
+    Serial.println("Led setup done");
     
-    temp.begin();
+    // temp.begin();
+    temp.sensor.begin(0x48, Wire);
 }
 
 void loop()
@@ -21,7 +29,8 @@ void loop()
     unsigned int counter = 0; 
     while(1)
     {
-        values[counter] = temp.getData();
+        digitalWrite(LED_BUILTIN, 1);
+        // values[counter] = temp.getData();
         
         for(size_t i(0) ; i < SIZE ; i++)
         {
@@ -34,5 +43,6 @@ void loop()
         delay(50);
         
         counter++;
+        digitalWrite(LED_BUILTIN, 0);
     }
 }
