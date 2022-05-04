@@ -3,6 +3,8 @@
 Temperature::Temperature()
 {
     Wire.begin();
+    Serial.begin(115200);    // Start serial communication at 115200 baud
+    Wire.setClock(400000);
 
     if (sensor.begin() == true) // Function to check if the sensor will correctly self-identify with the proper Device ID/Address
     {
