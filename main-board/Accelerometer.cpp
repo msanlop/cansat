@@ -32,7 +32,8 @@ double Accelerometer::getAcceleration(outputData& myData){
 }
 
 bool Accelerometer::isFlying(){
-    if(getAcceleration < 10)
+    myData = kxAccel.getAccelData();
+    if(getAcceleration(myData) < 10)
         return false;
     else 
         return true;

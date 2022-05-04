@@ -16,24 +16,33 @@ Accelerometer::Accelerometer()
     data = {0.0, 0.0, 0.0};
 }
 
-void Accelerometer::getData(vector<double> buff){
+void Accelerometer::getData(vector<double>& data){
     myData = kxAccel.getAccelData();
-    buff.push_back(myData.xData);
-    buff.push_back(myData.yData);
-    buff.push_back(myData.zData);
+    Serial.println("X : " + myData.xData);
+    data.pushback(myData.xData);
+
+    Serial.println("Y : " + myData.yData);
+    data.pushback(myData.yData);
+
+    Serial.println("Z : " + myData.zData);
+    data.pushback(myData.yData);   
 };
 
 double Accelerometer::getAcceleration(outputData& myData){
     double x = myData.xData;
     double y = myData.yData;
     double z = myData.zData;
-    
-    return sqrt(x*x + y*y + z*y);
+    double acc = sqrt(x*x + y*y + z*y);
+    Serial.println("Acceleration(m^2?) : " + acc);
+    return acc;
 }
 
 bool Accelerometer::isFlying(){
-    if(getAcceleration < 10)
+    myData = kxAccel.getAccelData();
+    if(getAcceleration(myData) < 10)
+        Serial.println("Too slow, go faster!!");
         return false;
     else 
+        Serial.println("Fast!!");
         return true;
 }
