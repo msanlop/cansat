@@ -2,34 +2,44 @@
 #include "Pressure.h"
 
 constexpr unsigned int SIZE(20);
+double values[SIZE][4];
 
 Pressure press;
 
 void setup()
 {
-  // Set clock speed to be the fastest for better communication (fast mode)
+    Serial.begin(115200);    // Start serial communication at 115200 baud
+
+    Wire.begin();
+    Wire.setClock(400000);
+
+    press.begin();
 }
 
 void loop()
 {
-    double values[SIZE][4];
-    unsigned int counter = 0; 
-    while(1)
+    memset(values, 0, SIZE);
+    
+    for(auto& value : values)
     {
-        press.getData(values[counter]);
+        press.getData(value);
         
-        for ( int i = 0; i < 4; ++i ) 
+        for ( int i = 0; i < SIZE; ++i ) 
         {
             // loop through columns of current row
-            for ( int j = 0; j < SIZE; ++j )
+            for ( int j = 0; j < 4; ++j )
             {
-                Serial.print (values[ i ][ j ] );
-                Serial.print ('\r') ; // start new line of output
+                Serial.print (values[ i ][ j ]);
+                Serial.print (", ");
             }
+            Serial.println(); // start new line of output
+            delay(100);
         } 
+        Serial.println();
+        Serial.println();
+        Serial.println();
 
-        delay(50);
-        
-        counter++;
+        delay(100);
     }
+    while(1){}
 }

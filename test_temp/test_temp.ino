@@ -1,8 +1,8 @@
 #include <Wire.h>
 #include "Temperature.h"
-#include "SparkFun_TMP117.h"
 
 constexpr unsigned int SIZE(20);
+double values[SIZE];
 
 Temperature temp;
 
@@ -18,11 +18,11 @@ void setup()
 
 void loop()
 {
-    double values[SIZE];
+    memset(values, 0, SIZE);
     
-    for(size_t i(0) ; i < SIZE ; i++)
+    for(auto& value : values)
     {
-        values[i] = temp.getData();
+        value = temp.getData();
         
         for(size_t j(0) ; j < SIZE ; j++)
         {
@@ -31,6 +31,7 @@ void loop()
         }
         
         Serial.println();
-        delay(50);
+        delay(100);
     }
+    while(1){}
 }

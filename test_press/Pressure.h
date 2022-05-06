@@ -12,6 +12,7 @@ class Pressure
     public:
         Pressure();
         void getData(double values[4]);
+        void begin();
 };
 
 #endif
