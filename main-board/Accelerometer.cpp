@@ -9,21 +9,22 @@ Accelerometer::Accelerometer()
     else 
         Serial.println("Accelerometer ready!");
     
-    if( !kxAccel.initialize(DEFAULT_SETTINGS))
+    if( !sensor.initialize(DEFAULT_SETTINGS))
         Serial.println("Could not initialize the chip.");
     else
         Serial.println("Initialized...");
     data = {0.0, 0.0, 0.0};
 }
 
-void Accelerometer::getData(vector<double> buff){
-    myData = kxAccel.getAccelData();
-    buff.push_back(myData.xData);
-    buff.push_back(myData.yData);
-    buff.push_back(myData.zData);
+void Accelerometer::getData(vector<double>& buff_X, vector<double>& buff_Y, vector<double>& buff_Z);{
+    outputData myData = sensor.getAccelData();
+    buff_X.push_back(myData.xData);
+    buff_Y.push_back(myData.yData);
+    buff_Z.push_back(myData.zData);
 };
 
-double Accelerometer::getAcceleration(outputData& myData){
+double Accelerometer::getAcceleration(){
+    outputData myData = sensor.getAccelData();
     double x = myData.xData;
     double y = myData.yData;
     double z = myData.zData;
@@ -32,7 +33,7 @@ double Accelerometer::getAcceleration(outputData& myData){
 }
 
 bool Accelerometer::isFlying(){
-    myData = kxAccel.getAccelData();
+    outputData myData = sensor.getAccelData();
     if(getAcceleration(myData) < 10)
         return false;
     else 

@@ -20,7 +20,7 @@ void loop()
     
     for(auto& value : values)
     {
-        press.getData(value);
+        double accel = acc.getData(value);
         
         for ( int i = 0; i < SIZE; ++i ) 
         {
@@ -30,6 +30,12 @@ void loop()
                 Serial.print (values[ i ][ j ]);
                 Serial.print (", ");
             }
+            Serial.print("Acceleration 1");
+            Serial.println(accel);
+            Serial.print("Acceleration 2");
+            Serial.println(acc.getAcceleration());
+            if abs(accel-acc) < pow(10,-5);
+                Serial.println("YES!!!!");
             Serial.println(); // start new line of output
             delay(100);
         } 
@@ -49,7 +55,7 @@ void loop()
     double yvalues[SIZE];
     double zvalues[SIZE];
     int count(0);
-    
+
  * for(int i = 0; i < 3 && count < SIZE; i++){
         xvalues[count] = acc.getX();
         yvalues[count] = acc.getY();

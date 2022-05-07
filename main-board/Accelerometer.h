@@ -10,7 +10,7 @@ class Accelerometer
 
     public:
         Accelerometer();
-        void getData(vector<double> buff);
+        void getData(vector<double>& buff_X, vector<double>& buff_Y, vector<double>& buff_Z);
         bool isFlying();
         double getAcceleration(outputData& myData);
 }

@@ -38,11 +38,12 @@ double Accelerometer::getZ(){
     return myData.zData;
 }
 
-void Accelerometer::getData(double values[3]){
+double Accelerometer::getData(double values[3]){
     outputData myData = sensor.getAccelData();
     values[0] = myData.xData;
     values[1] = myData.yData;
     values[2] = myData.zData;
+    return sqrt((myData.xData*myData.xData) + (myData.yData*myData.yData) + (myData.zData*myData.zData))
 };
 double Accelerometer::getAcceleration(){
     outputData myData = sensor.getAccelData();
