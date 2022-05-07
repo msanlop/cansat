@@ -32,6 +32,7 @@ double Accelerometer::getAcceleration(){
     return sqrt(x*x + y*y + z*y);
 }
 
+//TO TEST!!!!!!!!!!!!
 bool Accelerometer::isFlying(){
     outputData myData = sensor.getAccelData();
     if(getAcceleration(myData) < 10)
