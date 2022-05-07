@@ -9,7 +9,7 @@ class Accelerometer
 
     public:
         void begin();
-        double getData(double value[3]);
+        void getData(double value[]);
         double getX();
         double getY();
         double getZ();

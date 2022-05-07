@@ -38,12 +38,11 @@ double Accelerometer::getZ(){
     return myData.zData;
 }
 
-double Accelerometer::getData(double values[3]){
+void Accelerometer::getData(double values[]){
     outputData myData = sensor.getAccelData();
     values[0] = myData.xData;
-    values[1] = myData.yData;
-    values[2] = myData.zData;
-    return sqrt((myData.xData*myData.xData) + (myData.yData*myData.yData) + (myData.zData*myData.zData));
+    (values)[1] = myData.yData;
+    (values)[2] = myData.zData;
 }
 double Accelerometer::getAcceleration(){
     outputData myData = sensor.getAccelData();
@@ -51,8 +50,6 @@ double Accelerometer::getAcceleration(){
     double y = myData.yData;
     double z = myData.zData;
     double acc = sqrt((x*x) + (y*y) + (z*z));
-    Serial.print("Acceleration(m^2?) : ");
-    Serial.println(acc);
     return acc;
 }
 
