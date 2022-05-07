@@ -21,7 +21,7 @@ void loop()
     for(auto& value : values)
     {
         double accel = acc.getData(value);
-        
+        double raccel = acc.getAcceleration();
         for ( int i = 0; i < SIZE; ++i ) 
         {
             // loop through columns of current row
@@ -33,8 +33,9 @@ void loop()
             Serial.print("Acceleration 1");
             Serial.println(accel);
             Serial.print("Acceleration 2");
-            Serial.println(acc.getAcceleration());
-            if abs(accel-acc) < pow(10,-5);
+            
+            Serial.println(raccel);
+            if abs(accel-raccel) < pow(10,-5)
                 Serial.println("YES!!!!");
             Serial.println(); // start new line of output
             delay(100);
