@@ -37,22 +37,13 @@ double Accelerometer::getZ(){
     Serial.println(myData.zData);
     return myData.zData;
 }
-/**
-void Accelerometer::getData(std::vector<double>& data){
+
+void Accelerometer::getData(double values[3]){
     outputData myData = sensor.getAccelData();
-    Serial.print("X : ");
-    Serial.println(myData.xData);
-    data.push_back(myData.xData);
-
-    Serial.print("Y : ");
-    Serial.println(myData.yData);
-    data.push_back(myData.yData);
-
-    Serial.print("Z : ");
-    Serial.println(myData.zData);
-    data.push_back(myData.yData);  
+    values[0] = myData.xData;
+    values[1] = myData.yData;
+    values[2] = myData.zData;
 };
-**/
 double Accelerometer::getAcceleration(){
     outputData myData = sensor.getAccelData();
     double x = myData.xData;
