@@ -6,12 +6,26 @@
 #include "Memory.h"
 #include<ctime>
 
+constexpr unsigned int SIZE(4);
+double values[SIZE][9];
 
-Accelerometer accel;
-Lora comms;
-Memory mem;
+Pressure press;
+Temperature temp;
+Accelerometer acc;
+
+
 
 void setup() {
+
+    Serial.begin(115200);    // Start serial communication at 115200 baud
+
+    Wire.begin();
+    Wire.setClock(400000);
+
+    press.begin();
+    temp.begin();
+    acc.begin();
+
     comms.confirmSetup(millis());
     //check cansat status with altitude?
     while(!accel.isFlying()) {
@@ -22,13 +36,11 @@ void setup() {
 }
 
 void loop() {
-    vector<vector<double>> values;
-    vector<unsigned long> deltas;
     size_t lastWritten = 0;
     unsigned long lastMemWrite, lastdownlink = millis();
 
     while(accel.isFlying()){
-        accel.getData(values); //specify which vectors to pass
+        
         //poll all sensors
         deltas.push_back(millis());
         if(writeToMemoryNow() || downlinkNow()){
