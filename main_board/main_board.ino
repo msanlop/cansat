@@ -35,14 +35,15 @@ void loop() {
       line = 0;
       column = 0;
     }
-    Serial.println(millis());
+    getData();
+    getData();
+    getData();
     getData();
     print_data();
 }
 
 void getData() {
     time[line] = millis();
-  
     buffer[line][column] = 0; //mode
     column++;
     buffer[line][column] = temp.getData();
@@ -68,8 +69,8 @@ void print_data()
 {
     for (int i = 0; i < SIZE; ++i) {
         // loop through columns of current row
-        //Serial.print(time[i]);
-        //Serial.print(", ");
+        Serial.print(time[i]);
+        Serial.print(", ");
         for (int j = 0; j < DATA_NB; ++j) {
             Serial.print(buffer[i][j]);
             Serial.print(", ");
