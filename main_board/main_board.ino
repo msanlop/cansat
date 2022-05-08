@@ -76,11 +76,10 @@ void print_data()
             Serial.print(", ");
         }
         Serial.println(); // start new line of output
-        delay(100);
     }
     Serial.println();
     Serial.println();
     Serial.println();
 
-    delay(100);
+    delay(500);
 }
