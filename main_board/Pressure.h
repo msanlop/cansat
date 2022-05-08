@@ -11,7 +11,9 @@ class Pressure
 
     public:
         Pressure();
-        void getData(double values[4]);
+        double getHumidity();
+        double getPressure();
+        double getAltitude();
         void begin();
 };
 

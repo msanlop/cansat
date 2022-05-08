@@ -19,22 +19,16 @@ void Accelerometer::begin()
 
 double Accelerometer::getX(){
     outputData myData = sensor.getAccelData();
-    Serial.print("X : ");
-    Serial.println(myData.xData);
     return myData.xData;
 }
 
 double Accelerometer::getY(){
     outputData myData = sensor.getAccelData();
-    Serial.print("Y : ");
-    Serial.println(myData.yData);
     return myData.yData;
 }
 
 double Accelerometer::getZ(){
     outputData myData = sensor.getAccelData();
-    Serial.print("Z : ");
-    Serial.println(myData.zData);
     return myData.zData;
 }
 

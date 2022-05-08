@@ -4,12 +4,19 @@ Pressure::Pressure()
 {
 }
 
-void Pressure::getData(double values[4])
+double Pressure::getHumidity()
 {
-    values[0] = sensor.readFloatHumidity();
-    values[1] = sensor.readFloatPressure();
-    values[2] = sensor.readFloatAltitudeMeters();
-    values[3] = sensor.readTempC();
+    return sensor.readFloatHumidity();
+}
+
+double Pressure::getPressure()
+{
+    return sensor.readFloatPressure();
+}
+
+double Pressure::getAltitude()
+{
+    return sensor.readFloatAltitudeMeters();
 }
 
 void Pressure::begin()
