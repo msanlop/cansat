@@ -9,13 +9,13 @@ void setup() {
 }
 void loop() {
  playPassed();
- delay(1000);
+ delay(500);
  playFailed();
- delay(2000);
+ delay(500);
 }
 void playPassed() { /* function playPassed */
  ////Play 'ON' Sound
- int melodyOn[] = {NOTE_C5, NOTE_C6, NOTE_D5, NOTE_A6};
+ int melodyOn[] = {NOTE_C8, NOTE_D8};
  int durationOn = 200;
  for (int thisNote = 0; thisNote < 4; thisNote++) {
    tone(buzPin, melodyOn[thisNote], durationOn);

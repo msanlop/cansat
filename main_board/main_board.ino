@@ -3,8 +3,10 @@
 #include "Temperature.h"
 #include <Wire.h>
 
+
 constexpr unsigned int SIZE(4);
 constexpr unsigned int DATA_NB(8);
+constexpr int buzPin(11);
 
 double buffer[SIZE][DATA_NB];
 unsigned long time[SIZE];
