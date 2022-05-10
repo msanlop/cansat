@@ -11,6 +11,11 @@ constexpr int buzPin(11);
 double buffer[SIZE][DATA_NB];
 unsigned long time[SIZE];
 
+
+enum STAGE {CLIMB_STAGE, RECORD_STAGE, RECOVERY_STAGE};
+
+enum STAGE current_Stage = IDLE_STAGE;
+
 size_t line = 0;
 size_t column =0;
 
@@ -31,7 +36,6 @@ void setup() {
 }
 
 void loop() {
-
     if(line == SIZE)
     {
       line = 0;
