@@ -6,7 +6,6 @@ Temperature::Temperature()
 
 double Temperature::getData()
 {
-    while(!sensor.dataReady());
     return sensor.readTempC();
 }
 
