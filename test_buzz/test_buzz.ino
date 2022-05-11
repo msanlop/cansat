@@ -1,3 +1,6 @@
+/*
+* Measure Piezo db and try to work around 110 db 
+*/
 //Libraries
 #include "pitches.h" //https://www.arduino.cc/en/Tutorial/toneMelody
 //Parameters

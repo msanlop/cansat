@@ -15,6 +15,7 @@ void Accelerometer::begin()
         Serial.println("Could not initialize the chip.");
     else
         Serial.println("Initialized...");
+    sensor.setBufferOperation(BUFFER_8BIT_SAMPLES, BUFFER_MODE_FIFO);
 }
 
 double Accelerometer::getX(){
@@ -35,8 +36,8 @@ double Accelerometer::getZ(){
 void Accelerometer::getData(double values[]){
     outputData myData = sensor.getAccelData();
     values[0] = myData.xData;
-    (values)[1] = myData.yData;
-    (values)[2] = myData.zData;
+    values[1] = myData.yData;
+    values[2] = myData.zData;
 }
 double Accelerometer::getAcceleration(){
     outputData myData = sensor.getAccelData();
