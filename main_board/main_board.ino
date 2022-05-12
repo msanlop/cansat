@@ -120,3 +120,11 @@ void print_data()
         Serial.println(); // start new line of output
     }
 }
+
+void beep(){
+  if(true) //change to actual mode == recovery
+    while(1){ //keeps beeping each for 500
+      tone(buzPin, 1568, 500);
+      delay(500);
+    }
+}
