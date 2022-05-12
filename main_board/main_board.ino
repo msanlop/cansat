@@ -53,6 +53,9 @@ void setup() {
     acc.begin();
     Serial.println("setup done");
 
+    pinMode(LED_BUILTIN,OUTPUT);
+
+
     altitude_zero = press.getAltitude();
     altitude_rec = altitude_zero + 250;
 }
@@ -61,7 +64,7 @@ void setup() {
 void loop() {
   //IDLE STAGE
   while(idle_stage()){
-    delay(20); //sleep alternative?
+    idle_leds();
   }
 
   //RECORD STAGE
@@ -90,7 +93,7 @@ void loop() {
   tone(buzPin, 1568, 500); // activate once or in loop??
   while(current_stage == STAGE_RECOVERY){
     print_data();
-    delay(2000);
+    recovery_leds(); //2 second delay
   }
 }
     //delay(idk) //best compromise between more data and battery consumption?
@@ -191,4 +194,36 @@ void beep(){
       tone(buzPin, 1568, 500);
       delay(500);
     }
+}
+
+
+
+
+//2 flashes every second pattern
+void idle_leds(){
+  digitalWrite(LED_BUILTIN, 1);
+  delay(300);
+  digitalWrite(LED_BUILTIN, 0);
+  delay(300);
+  digitalWrite(LED_BUILTIN, 1);
+  delay(300);
+  digitalWrite(LED_BUILTIN, 0);
+  delay(100);
+}
+
+//3 quick flashes / 2 second
+void recovery_leds(){
+  int period = 1000;
+  digitalWrite(LED_BUILTIN, 1);
+  delay(period/6);
+  digitalWrite(LED_BUILTIN, 0);
+  delay(period/6);
+  digitalWrite(LED_BUILTIN, 1);
+  delay(period/6);
+  digitalWrite(LED_BUILTIN, 0);
+  delay(period/6);
+  digitalWrite(LED_BUILTIN, 1);
+  delay(period/6);
+  digitalWrite(LED_BUILTIN, 0);
+  delay(period/6 + period);
 }
