@@ -4,7 +4,9 @@
 #include <Wire.h>
 
 #define LORA_MCU_ADDR 14 //CHANGE IN LORA MCU TOO
-#define TEST_STRING "dafkdlakfjaksldjfl;dksajfl;kdsjaflkjaskldfjkdsfkjadslkjflkasdjflkjsaldkfjlsadkjflksdjaflkjdsalkfjldakjflkjasdlkfjlskadjflkjsalkfjalsjdfk"
+
+enum FLIGHT_STAGE {IDLE_STAGE, RECORD_STAGE, RECOVERY_STAGE}
+enum FLIGHT_STAGE currentStage = IDLE_STAGE;
 
 constexpr unsigned int SIZE(4);
 constexpr unsigned int DATA_NB(8);
@@ -34,7 +36,14 @@ void setup() {
     Serial.println("setup done");
 }
 
+bool switch_record_stage(){
+  
+}
+
 void loop() {
+  while(!switch_record_stage){
+    
+  }
     if(line == SIZE)
     {
       line = 0;
