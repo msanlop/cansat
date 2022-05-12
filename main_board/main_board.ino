@@ -5,25 +5,43 @@
 
 #define LORA_MCU_ADDR 14 //CHANGE IN LORA MCU TOO
 
-enum FLIGHT_STAGE {IDLE_STAGE, RECORD_STAGE, RECOVERY_STAGE}
-enum FLIGHT_STAGE currentStage = IDLE_STAGE;
+enum FLIGHT_STAGE {STAGE_IDLE, STAGE_RECORD, STAGE_RECOVERY};
+FLIGHT_STAGE current_stage = STAGE_IDLE;
+
+unsigned long record_stage_time = 0.0;
+unsigned long recovery_stage_time = 0.0;
+
+// #define ZERO_ALTITUDE //IDK???
 
 constexpr unsigned int SIZE(4);
-constexpr unsigned int DATA_NB(8);
+constexpr unsigned int DATA_NB(7);
 constexpr int buzPin(11);
 
+constexpr unsigned int MEM_SIZE(2950);
+
+// double data_mem[MEM_SIZE][DATA_NB];
+#define MEM_SAVE_INTERVAL 1000 // in ms
+#define STRING_MAX_LEN 63
+char data_mem[MEM_SIZE][STRING_MAX_LEN + 1];
+int mem_counter = 0;
+
 double buffer[SIZE][DATA_NB];
-unsigned long time[SIZE];
+enum BUFF_ID {TEMP, HUM, PRES, ALT, ACCEL};
+
+unsigned long time_buffer[SIZE];
 String string_buffer = "";
 
 size_t line = 0;
 size_t column =0;
 
-int counter = 0;
-
 Temperature temp;
 Pressure press;
 Accelerometer acc;
+
+double altitude_zero;
+//altitude to start recording at
+double altitude_rec;
+
 
 void setup() {
     Serial.begin(115200); // Start serial communication at 115200 baud
@@ -34,55 +52,77 @@ void setup() {
     press.begin();
     acc.begin();
     Serial.println("setup done");
+
+    altitude_zero = press.getAltitude();
+    altitude_rec = altitude_zero + 250;
 }
 
-bool switch_record_stage(){
-  
-}
 
 void loop() {
-  while(!switch_record_stage){
-    
-  }
-    if(line == SIZE)
-    {
-      line = 0;
-      column = 0;
-    }
-    getData();
-    getData();
-    getData();
-    getData();
-    make_string();
-    // print_data();
-    lora_transmit();
-    Serial.println(string_buffer);
-    //delay(idk) //best compromise between more data and battery consumption?
+  //IDLE STAGE
+  while(idle_stage()){
+    delay(20); //sleep alternative?
   }
 
+  //RECORD STAGE
+  record_stage_time = millis();
+  long t0 = millis();
+  while(record_stage()){
+    getData();
+    long delta = millis() - t0;  
+    
+    //transmit buffer
+    if (line == SIZE){
+      line = 0;
+      make_string();
+
+      //save 1 reading to RAM
+      if(delta >= MEM_SAVE_INTERVAL){
+        strncpy(data_mem[mem_counter++], string_buffer.c_str(), STRING_MAX_LEN);
+        t0 = millis();
+      }
+      lora_transmit();
+    }
+  }
+
+  //RECOVERY STAGE
+  recovery_stage_time = millis();
+  tone(buzPin, 1568, 500); // activate once or in loop??
+  while(current_stage == STAGE_RECOVERY){
+    print_data();
+    delay(2000);
+  }
+}
+    //delay(idk) //best compromise between more data and battery consumption?
+
 void getData() {
-    time[line] = millis();
-    buffer[line][column] = 0; //mode
-    column++;
-    buffer[line][column] = temp.getData();
-    column++;
-    buffer[line][column] = press.getHumidity();
-    column++;
-    buffer[line][column] = press.getPressure();
-    column++;
-    buffer[line][column] = press.getAltitude();
-    column++;
-    acc.getData(&buffer[line][column]); //check if valid
-   //TODO: 1 I2C call could be made instead of 3 here
+    time_buffer[line] = millis();
+    buffer[line][TEMP] = temp.getData();
+    buffer[line][HUM] = press.getHumidity();
+    buffer[line][PRES] = press.getPressure();
+    buffer[line][ALT] = press.getAltitude();
+    acc.getData(&buffer[line][ACCEL]); //check if equivalent to below
     // buffer[line][column] = acc.getX();
     // column++;
     // buffer[line][column] = acc.getY();
     // column++;
     // buffer[line][column] = acc.getZ();
     // column+=3;
-
-    column = 0;
     line++;
+}
+
+//true if cansat is above landing height 
+//and TODO: while accelerometer data is active
+bool record_stage(){
+  return (current_stage == STAGE_RECORD && 
+    (press.getAltitude() >= altitude_zero + 5));
+    // + condition accelerometer is still ?
+}
+
+//true if cansat is under record height threshold
+bool idle_stage(){
+  return (current_stage == STAGE_IDLE && 
+    press.getAltitude() < altitude_rec);
 }
 
 /**
@@ -92,13 +132,12 @@ void getData() {
 void lora_transmit()
 {
   // const char *strin_c = string_buffer.c_str();
-  Serial.print("Bytes available :");
-  Serial.print(Wire.txBuffer.availableForStore());
   Wire.beginTransmission(LORA_MCU_ADDR);
-  Wire.write(string_buffer.c_str()); //TODO: max is 64 bytes, change this
+  Wire.write(string_buffer.c_str());
   uint8_t tx_res = Wire.endTransmission();
   Serial.print("transmission done. Err code : ");
   Serial.println(tx_res);
+  Serial.println(string_buffer);
 }
 
 /**
@@ -109,7 +148,7 @@ void make_string()
 {
   string_buffer = "";
   for (int i = 0; i < SIZE; ++i) {
-    string_buffer += String(time[i]) + ",";
+    string_buffer += String(time_buffer[i]) + ",";
     for (int j = 0; j < DATA_NB - 1; ++j) {
       string_buffer += String(buffer[i][j]) + ",";
     }
@@ -119,18 +158,31 @@ void make_string()
   
 }
 
+/**
+ * @brief Prints the data saved in RAM to serial
+ * 
+ */
 void print_data()
 {
-    for (int i = 0; i < SIZE; ++i) {
-        // loop through columns of current row
-        Serial.print(time[i]);
-        Serial.print(", ");
-        for (int j = 0; j < DATA_NB; ++j) {
-            Serial.print(buffer[i][j]);
-            Serial.print(", ");
-        }
-        Serial.println(); // start new line of output
-    }
+  //PRINT BUFFER
+    // for (int i = 0; i < SIZE; ++i) {
+    //     // loop through columns of current row
+    //     Serial.print(time_buffer[i]);
+    //     Serial.print(", ");
+    //     for (int j = 0; j < DATA_NB; ++j) {
+    //         Serial.print(buffer[i][j]);
+    //         Serial.print(", ");
+    //     }
+    //     Serial.println(); // start new line of output
+    // }
+
+  for (int i = 0; i < mem_counter; ++i) {
+      Serial.print(data_mem[i]);
+      Serial.println();
+  }
+  Serial.println();
+  Serial.println();
+
 }
 
 void beep(){
