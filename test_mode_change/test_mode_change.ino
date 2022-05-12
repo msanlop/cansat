@@ -53,6 +53,11 @@ void setup() {
 void loop() {
   switch (actual_mode)
   {
+  /**
+   * @brief 
+   * in mode SLEEP:
+   * Verify if change mode and sound if the mode has been change.
+   */
   case SLEEP:
     verify_activation();
     Serial.println("SLEEP");
