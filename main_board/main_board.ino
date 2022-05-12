@@ -78,16 +78,18 @@ void getData() {
 
 /**
  * @brief Transmit the string buffer over I2C to the LORA board. 
- * TODO: This might not be fast enough + max is 64 bytes...
  * 
  */
 void lora_transmit()
 {
   // const char *strin_c = string_buffer.c_str();
+  Serial.print("Bytes available :");
+  Serial.print(Wire.txBuffer.availableForStore());
   Wire.beginTransmission(LORA_MCU_ADDR);
   Wire.write(string_buffer.c_str()); //TODO: max is 64 bytes, change this
-  Wire.endTransmission();
-  Serial.println("transmission done!");
+  uint8_t tx_res = Wire.endTransmission();
+  Serial.print("transmission done. Err code : ");
+  Serial.println(tx_res);
 }
 
 /**
@@ -105,6 +107,7 @@ void make_string()
     string_buffer += String(buffer[i][DATA_NB - 1]);
     string_buffer += ";";
   }
+  
 }
 
 void print_data()

@@ -37,7 +37,7 @@ boolean trasmitLoRa() {
     i_index++;
 }
 
-
+//IMPORTANT: Set serial buffer to 256
 void receiveEvent(int howMany) {
     digitalWrite(LED_BUILTIN, 0);
     Serial.print(howMany);
@@ -73,14 +73,16 @@ void setup() {
     if (!LoRa.begin(FREQ)) {
         Serial.println("Starting LoRa failed!");
         Serial.println("Stopping exec");
+        //add led msg
         while (1);
     }
     
     // LoRa.setSpreadingFactor(SPREADING_FACTOR);
-
+    // Serial.println(LoRa.getSpreadingFactor()); //default is 7
     Serial.println("Finished setup");
 }
 
 void loop() {
     delay(50);
+    //add led msg for normal operation
 }
