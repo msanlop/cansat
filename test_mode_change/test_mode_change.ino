@@ -9,6 +9,21 @@
 constexpr unsigned int SIZE(4);
 constexpr unsigned int DATA_NB(8);
 constexpr int buzPin(11);
+constexpr int button_activationPin(5);
+
+/**
+ * @brief 
+ * Modes:
+ * - SLEEP = no sensors active just waiting to wake signa (button on PIN = ???)
+ * - STANDBY = All sensors wake up and waiting to begin data recollection once in the Air
+ * - DATACOLLECTION = Data recollection + TELECOM
+ * - RECOVERY = CanSat arrives on the ground and beep starts
+ */
+enum mode{SLEEP, STANDBY, DATA_COLLECTION, RECOVERY};
+mode actual_mode = SLEEP;
+
+int t1 = 0;
+bool first_press = false;
 
 double buffer[SIZE][DATA_NB];
 unsigned long time[SIZE];
@@ -28,12 +43,74 @@ void setup() {
     Wire.begin();
     Wire.setClock(400000);
 
+    pinMode(button_activationPin, INPUT);
+
     temp.begin();
     press.begin();
     acc.begin();
     Serial.println("setup done");
 }
+void loop() {
+  switch (actual_mode)
+  {
+  case SLEEP:
+    verify_activation();
+    Serial.println("SLEEP");
+    delay(100);
+    break;
+  case STANDBY:
+    verify_flying();
+    Serial.println("STANDBY");
+    delay(100);
+    break;
+  case DATA_COLLECTION:
+    getDataAll();
+    verify_recovery();
+    Serial.println("DATA");
+    delay(100);
+    break;
+  case RECOVERY:
+    Serial.println("RECOVERY");
+    break;
+  }
+}
 
+
+void verify_activation(){
+  if(millis()-t1 <= 1000 && first_press){
+    int buttonState = digitalRead(button_activationPin);
+    if(buttonState == HIGH){
+      actual_mode = STANDBY;
+      beep();
+      wake_up();
+    }
+  }else if(first_press){
+      first_press = false;
+      t1 = millis();
+  }else{
+    int buttonState = digitalRead(button_activationPin);
+    if(buttonState == HIGH)
+      first_press = true;
+    t1 = millis();
+  }
+}
+
+void verify_flying(){
+    
+}
+
+void getDataAll(){
+
+}
+
+void verify_recovery(){
+
+}
+
+void wake_up(){
+
+}
+/*
 void loop() {
     if(line == SIZE)
     {
@@ -50,7 +127,7 @@ void loop() {
     Serial.println(string_buffer);
     //delay(idk) //best compromise between more data and battery consumption?
   }
-
+*/
 void getData() {
     time[line] = millis();
     buffer[line][column] = 0; //mode
@@ -122,9 +199,7 @@ void print_data()
 }
 
 void beep(){
-  if(true) //change to actual mode == recovery
-    while(1){ //keeps beeping each for 500
-      tone(buzPin, 1568, 500);
-      delay(500);
-    }
+ //keeps beeping each for 500
+  tone(buzPin, 1568, 500);
+  delay(500);
 }
