@@ -21,8 +21,8 @@ constexpr unsigned int MEM_SIZE(2950);
 
 // double data_mem[MEM_SIZE][DATA_NB];
 #define MEM_SAVE_INTERVAL 1000 // in ms
-#define STRING_MAX_LEN 63
-char data_mem[MEM_SIZE][STRING_MAX_LEN + 1];
+#define STR_MAX_LEN 63
+char data_mem[MEM_SIZE][STR_MAX_LEN + 1];
 int mem_counter = 0;
 
 double buffer[SIZE][DATA_NB];
@@ -41,10 +41,12 @@ Accelerometer acc;
 double altitude_zero;
 //altitude to start recording at
 double altitude_rec;
+#define DELTA_ALT_RECORD 10 //in meters
 
 
 void setup() {
     Serial.begin(115200); // Start serial communication at 115200 baud
+    // while(!Serial); // ONLY FOR TESTING
     Wire.begin();
     Wire.setClock(400000);
 
@@ -57,20 +59,32 @@ void setup() {
 
 
     altitude_zero = press.getAltitude();
-    altitude_rec = altitude_zero + 250;
+    altitude_rec = altitude_zero + DELTA_ALT_RECORD;
+    Serial.println(altitude_zero);
+    Serial.println(altitude_rec);
+
 }
 
 
 void loop() {
+
+  Serial.println("idle stage");
   //IDLE STAGE
+  Serial.println(altitude_rec);
   while(idle_stage()){
+    Serial.println(press.getAltitude());
     idle_leds();
   }
+  unsigned long altitude_threshold_cross_time = millis();
+  int stage_change_frames = 3000; //altitute is not very precise
 
+  Serial.println("record stage");
   //RECORD STAGE
+  digitalWrite(LED_BUILTIN, 1);
+  current_stage = STAGE_RECORD;
   record_stage_time = millis();
   long t0 = millis();
-  while(record_stage()){
+  while(record_stage() || (millis() - altitude_threshold_cross_time <= stage_change_frames) ){
     getData();
     long delta = millis() - t0;  
     
@@ -81,22 +95,24 @@ void loop() {
 
       //save 1 reading to RAM
       if(delta >= MEM_SAVE_INTERVAL && mem_counter<MEM_SIZE){
-        strncpy(data_mem[mem_counter++], string_buffer.c_str(), STRING_MAX_LEN);
+        strncpy(data_mem[mem_counter++], string_buffer.c_str(), STR_MAX_LEN);
         t0 = millis();
       }
       lora_transmit();
     }
+    delay(97); //polling rate +- 3ms
   }
 
+  current_stage = STAGE_RECOVERY;
+  Serial.println("recovery stage");
   //RECOVERY STAGE
   recovery_stage_time = millis();
-  tone(buzPin, 1568, 500); // activate once or in loop??
   while(current_stage == STAGE_RECOVERY){
     print_data();
+    tone(buzPin, 1568, 500);
     recovery_leds(); //2 second delay
   }
 }
-    //delay(idk) //best compromise between more data and battery consumption?
 
 void getData() {
     time_buffer[line] = millis();
@@ -118,7 +134,7 @@ void getData() {
 //and TODO: while accelerometer data is active
 bool record_stage(){
   return (current_stage == STAGE_RECORD && 
-    (press.getAltitude() >= altitude_zero + 5));
+    (press.getAltitude() >= altitude_zero));
     // + condition accelerometer is still ?
 }
 
@@ -179,39 +195,34 @@ void print_data()
     //     Serial.println(); // start new line of output
     // }
 
-  for (int i = 0; i < mem_counter; ++i) {
+  Serial.print("Printing ram data after ms : ");
+  Serial.println(millis());
+  for (int i = 0; i < mem_counter && i < MEM_SIZE; ++i) {
       Serial.print(data_mem[i]);
       Serial.println();
   }
+  Serial.print("record time : ");
+  Serial.println(record_stage_time);
+  Serial.print("recovery time : "); 
+  Serial.println(recovery_stage_time);
   Serial.println();
   Serial.println();
 
 }
-
-void beep(){
-  if(true) //change to actual mode == recovery
-    while(1){ //keeps beeping each for 500
-      tone(buzPin, 1568, 500);
-      delay(500);
-    }
-}
-
-
-
 
 //2 flashes every second pattern
 void idle_leds(){
   digitalWrite(LED_BUILTIN, 1);
   delay(300);
   digitalWrite(LED_BUILTIN, 0);
-  delay(300);
+  delay(100);
   digitalWrite(LED_BUILTIN, 1);
   delay(300);
   digitalWrite(LED_BUILTIN, 0);
-  delay(100);
+  delay(300);
 }
 
-//3 quick flashes / 2 second
+//3 quick flashes per 2 second
 void recovery_leds(){
   int period = 1000;
   digitalWrite(LED_BUILTIN, 1);
