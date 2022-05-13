@@ -80,7 +80,7 @@ void loop() {
       make_string();
 
       //save 1 reading to RAM
-      if(delta >= MEM_SAVE_INTERVAL){
+      if(delta >= MEM_SAVE_INTERVAL && mem_counter<MEM_SIZE){
         strncpy(data_mem[mem_counter++], string_buffer.c_str(), STRING_MAX_LEN);
         t0 = millis();
       }
