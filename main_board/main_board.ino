@@ -86,7 +86,7 @@ void loop() {
   unsigned long t0 = millis();
   while(record_stage() || (millis() - altitude_threshold_cross_time <= stage_change_frames) ){
     getData();
-    long delta = millis() - t0;  
+    unsigned long delta = millis() - t0;  
     
     //transmit buffer
     if (line == SIZE){
