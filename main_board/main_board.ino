@@ -83,7 +83,7 @@ void loop() {
   digitalWrite(LED_BUILTIN, 1);
   current_stage = STAGE_RECORD;
   record_stage_time = millis();
-  long t0 = millis();
+  unsigned long t0 = millis();
   while(record_stage() || (millis() - altitude_threshold_cross_time <= stage_change_frames) ){
     getData();
     long delta = millis() - t0;  
