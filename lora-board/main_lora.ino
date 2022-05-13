@@ -4,60 +4,91 @@
 #define I2C_ADDRESS 14 // CHANGE IN MAIN MCU TOO
 
 #define SPREADING_FACTOR 7 //lower == higher bit rate but less range
+#define STRING_MAX_LEN 63
 
 const long FREQ = 869.500;
 
-int i_index = 0;
+constexpr unsigned int MEM_SIZE(420);
+
+#define STRING_MAX_LEN 63
+char data_mem[MEM_SIZE][STRING_MAX_LEN + 1];
+int mem_counter = 0;
+
+int packet_nb = 0;
+
+#define MEM_SAVE_INTERVAL 2500
+unsigned long t0_save_ram = millis();
+
 
 String str_buf = "";
-
-const int QUEUE_TRANSMIT_SIZE =
-    1; // TODO: define how big the msg and what field do we send
-
-#define msg126B "135877722,-0.20,-0.84,-0.54,84.48,59245.96,4302.85,22.08,25.94,135877722,-0.20,-0.84,-0.54,84.48,59245.96,4302.85,22.08,25.94"
-
-
-#define msg247B                                                                \
-    "135877722,-0.20,-0.84,-0.54,84.48,59245.96,4302.85,22.08,25.94,"          \
-    "135877722,-0.20,-0.84,-0.54,84.48,59245.96,4302.85,22.08,25.94,"          \
-    "135877722,-0.20,-0.84,-0.54,84.48,59245.96,4302.85,22.08,25.94,"          \
-    "135877722,-0.20,-0.84,-0.54,84.48,59245.96,4302.85,22.08"
 
 unsigned long old_time = 0;
 unsigned long delta = 0;
 
-boolean trasmitLoRa() {
+void transmit_string_buff() {
     Serial.print("Sending packet : ");
-    Serial.println(i_index);
+    Serial.println(packet_nb);
     // while (LoRa.isTransmitting()){}; //private...
     LoRa.beginPacket();
-    LoRa.print(msg247B);
+    LoRa.print(str_buf);
     // Serial.println("print packet testest");
     LoRa.endPacket();
-    i_index++;
+    packet_nb++;
 }
 
-//IMPORTANT: Set serial buffer to 256
+//
+/**
+ * @brief IMPORTANT: Set serial buffer to 256
+ * On receive construct string, transmit packet and save a data point to RAM if needed
+ * 
+ * @param howMany 
+ */
 void receiveEvent(int howMany) {
     digitalWrite(LED_BUILTIN, 0);
     Serial.print(howMany);
     Serial.println(" incoming bytes.");
 
     str_buf = "";
-    // message new_msg;
     while(1 <= Wire.available()) {
       char c = Wire.read();
       str_buf += c; //read 1 byte
     }
     Serial.print("Received : ");
     Serial.println(str_buf);
+    unsigned long delta = millis() - t0_save_ram;
+    if (delta >= MEM_SAVE_INTERVAL && mem_counter<MEM_SIZE && str_buf.length() > 3 * STRING_MAX_LEN + 3){
+        //record third datapoint to maximize coverage between MCUs
+        strncpy(data_mem[mem_counter++], str_buf.c_str() + 2*STRING_MAX_LEN, STRING_MAX_LEN);
+        t0_save_ram = millis();
+    }
+    transmit_string_buff();
     digitalWrite(LED_BUILTIN, 1);
 }
+
+/**
+ * @brief Prints data in RAM to serial
+ * 
+ */
+void print_data(){
+    Serial.print("Printing ram data after ms : ");
+    Serial.println(millis());
+    for (int i = 0; i < mem_counter && i < MEM_SIZE; ++i) {
+        Serial.print(data_mem[i]);
+        Serial.println();
+    }
+}
+
+void idle_leds(){
+  digitalWrite(LED_BUILTIN, 1);
+  delay(500);
+  digitalWrite(LED_BUILTIN, 0);
+  delay(500);
+}
+
 
 void setup() {
     //   Setup loraid access
     Serial.begin(115200);
-    while (!Serial);
 
 
     Wire.begin(I2C_ADDRESS);
@@ -83,6 +114,7 @@ void setup() {
 }
 
 void loop() {
-    delay(50);
-    //add led msg for normal operation
+    print_data();
+    idle_leds();
 }
+
