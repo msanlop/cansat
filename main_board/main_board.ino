@@ -4,6 +4,15 @@
 #include <Wire.h>
 
 #define LORA_MCU_ADDR 14 //CHANGE IN LORA MCU TOO
+#define POLLING_RATE 100 //in ms
+
+#define MAX_TRANSMIT_TIME 420000 //7 minutes in ms (6 minutes is max for this frequency by law) -> transmiting 0.85 of the time
+
+#define MEM_SAVE_INTERVAL 1000 // in ms
+#define STR_MAX_LEN 63
+
+#define DELTA_ALT_RECORD 200.0 //altetite to start recording at, in meters
+
 
 enum FLIGHT_STAGE {STAGE_IDLE, STAGE_RECORD, STAGE_RECOVERY};
 FLIGHT_STAGE current_stage = STAGE_IDLE;
@@ -11,17 +20,12 @@ FLIGHT_STAGE current_stage = STAGE_IDLE;
 unsigned long record_stage_time = 0.0;
 unsigned long recovery_stage_time = 0.0;
 
-// #define ZERO_ALTITUDE //IDK???
-
 constexpr unsigned int SIZE(4);
 constexpr unsigned int DATA_NB(7);
 constexpr int buzPin(11);
 
 constexpr unsigned int MEM_SIZE(2950);
 
-// double data_mem[MEM_SIZE][DATA_NB];
-#define MEM_SAVE_INTERVAL 1000 // in ms
-#define STR_MAX_LEN 63
 char data_mem[MEM_SIZE][STR_MAX_LEN + 1];
 int mem_counter = 0;
 
@@ -31,18 +35,16 @@ enum BUFF_ID {TEMP, HUM, PRES, ALT, ACCEL};
 unsigned long time_buffer[SIZE];
 String string_buffer = "";
 
-size_t line = 0;
-size_t column =0;
+double altitude_zero;
+//altitude to start recording at
+double altitude_rec;
 
 Temperature temp;
 Pressure press;
 Accelerometer acc;
 
-double altitude_zero;
-//altitude to start recording at
-double altitude_rec;
-#define DELTA_ALT_RECORD 10 //in meters
-
+size_t line = 0;
+size_t column =0;
 
 void setup() {
     Serial.begin(115200); // Start serial communication at 115200 baud
@@ -76,7 +78,7 @@ void loop() {
     idle_leds();
   }
   unsigned long altitude_threshold_cross_time = millis();
-  int stage_change_frames = 3000; //altitute is not very precise
+  int stage_change_frames = 10000; //altitute is not very precise
 
   Serial.println("record stage");
   //RECORD STAGE
@@ -84,7 +86,9 @@ void loop() {
   current_stage = STAGE_RECORD;
   record_stage_time = millis();
   unsigned long t0 = millis();
-  while(record_stage() || (millis() - altitude_threshold_cross_time <= stage_change_frames) ){
+  //TODO: add min time condition?
+  while(record_stage() 
+    || (millis() - altitude_threshold_cross_time <= stage_change_frames) ){
     getData();
     unsigned long delta = millis() - t0;  
     
@@ -98,9 +102,11 @@ void loop() {
         strncpy(data_mem[mem_counter++], string_buffer.c_str(), STR_MAX_LEN);
         t0 = millis();
       }
-      lora_transmit();
+      if (millis() - record_stage_time <= MAX_TRANSMIT_TIME){
+        lora_transmit();
+      }
     }
-    delay(97); //polling rate +- 3ms
+    delay(POLLING_RATE - 3); //polling rate +- 3ms
   }
 
   current_stage = STAGE_RECOVERY;
