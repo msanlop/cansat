@@ -70,12 +70,15 @@ void receiveEvent(int howMany) {
  * 
  */
 void print_data(){
+    Serial.println();
+    Serial.println();
     Serial.print("Printing ram data after ms : ");
     Serial.println(millis());
     for (int i = 0; i < mem_counter && i < MEM_SIZE; ++i) {
-        Serial.print(data_mem[i]);
-        Serial.println();
+        Serial.println(data_mem[i]);
     }
+    Serial.println();
+    Serial.println();
 }
 
 void idle_leds(){
@@ -117,4 +120,3 @@ void loop() {
     print_data();
     idle_leds();
 }
-
